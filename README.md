@@ -1,4 +1,4 @@
-[![build status](https://secure.travis-ci.org/freethenation/ctrl.png)](http://travis-ci.org/freethenation/ctrl)
+[![Build Status](https://travis-ci.org/freethenation/ctrl.png?branch=master)](https://travis-ci.org/freethenation/ctrl)
 # ctrl
 Simplifies asynchronous control flow in coffeescript making parallel code, synchronous code, and error handling simple
 # Why make another control flow library?
