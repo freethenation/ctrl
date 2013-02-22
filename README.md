@@ -206,3 +206,5 @@ customRunner.run([
 ```
 
 You can play with this example at [JSBin](http://jsbin.com/erapun/37/edit).
+
+The api documentation for the library can be found [here](https://github.com/freethenation/ctrl/blob/master/doc/api.md).
