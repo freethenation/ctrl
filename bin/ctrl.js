@@ -11,6 +11,11 @@
   };
 
   builders = {
+    /*{"name":"ctrl.builders.next", "priority":5}
+    This builder adds the `next()` function to the step parameter. 
+    It should normally be first in the list of builders.
+    */
+
     next: function(step, next) {
       var currentStep;
       step.steps = copyArray(step.steps);
@@ -27,6 +32,11 @@
       };
       return next();
     },
+    /*{"name":"ctrl.builders.spawn", "priority":5}
+    This builder adds the `spawn()` function to step object allowing 
+    parallel operations.
+    */
+
     spawn: function(step, next) {
       var SpawnState, oldNext, state;
       state = null;
@@ -96,6 +106,12 @@
       };
       return next();
     },
+    /*{"name":"ctrl.builders.errorHandler", "priority":5}
+    This builder adds error handling to the step object. 
+    If a function is passed in as `errorHandler` to the options 
+    parameter that function will be called in the event of an error.
+    */
+
     errorHandler: function(step, next) {
       var oldNext;
       if (!step.options.errorHandler) {
@@ -112,6 +128,12 @@
       };
       return next();
     },
+    /*{"name":"ctrl.builders.data", "priority":5}
+    This builder adds the `step.data` property allowing you to pass data 
+    between steps. Additionally, if `data` is passed into the options its
+     contents will be available to the first step.
+    */
+
     data: function(step, next) {
       if (step.options.data != null) {
         step.data = step.options.data;
@@ -122,6 +144,13 @@
     }
   };
 
+  /*{"name":"ctrl.CtrlRunner(builders)", "priority":2}
+  Define a new instance of this class to create a new runner
+  that can have custom builders. When calling the constructor pass
+  in a list of builders to use.
+  */
+
+
   CtrlRunner = (function() {
 
     function CtrlRunner(builders) {
@@ -129,9 +158,20 @@
       this.run = __bind(this.run, this);
 
       if (!isArray(this.builders)) {
+        /*{"name":"ctrl.CtrlRunner.builders", "priority":1}
+        A array containing the list of the registered builders
+        for this runner in the order they will be used.
+        */
+
         this.builders = copyArray(arguments);
       }
     }
+
+    /*{"name":"ctrl.CtrlRunner.run(steps, options={}, callback=(step)->)", "priority":1}
+    Run the supplied steps. The builders currently in the `builders`
+    array will be used to construct the steps object.
+    */
+
 
     CtrlRunner.prototype.run = function(steps, options, callback) {
       var currentModule, nextModule, step;
@@ -165,9 +205,20 @@
 
   defaultCtrlRunner = new CtrlRunner(builders.next, builders.spawn, builders.data, builders.errorHandler);
 
+  /*{"name":"ctrl(steps, options={}, callback=(step)->)", "priority":0}
+  Same as calling `ctrl.defaultCtrlRunner.run`.
+  */
+
+
   extern = defaultCtrlRunner.run;
 
   extern.builders = builders;
+
+  /*{"name":"ctrl.defaultCtrlRunner", "priority":0}
+  The default CtrlRunner. To modify what happens when you call `ctrl(steps, options={}, callback=(step)->)`
+  modify `ctrl.defaultCtrlRunner.builders`.
+  */
+
 
   extern.defaultCtrlRunner = defaultCtrlRunner;
 

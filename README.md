@@ -163,7 +163,7 @@ You can play with this example at [JSBin](http://jsbin.com/erapun/16/edit).
 
 # Extending
 _______________________
-If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up layer by layer by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. I think an example will clarify things. 
+If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up layer by layer by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. An example should clarify things. 
 
 ```javascript
 //The logger builder logs all parameters passed to step.next

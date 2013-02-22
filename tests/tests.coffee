@@ -52,7 +52,7 @@ callMeBack=(func, args...)->
 
 ctrl=require("../src/ctrl.coffee")
 
-test "Basic Next Test", ()->
+test "BasicNextTest", ()->
     runner = new ctrl.CtrlRunner(ctrl.builders.next)
     steps = []
     steps.push (ctrl)=>
@@ -99,10 +99,9 @@ test "ParallelCodeReturns", ()->
     ], {}, @done)
 
 test "BasicErrorHandling", ()->
-    ok = @ok
-    handler = (ctrl, error)->
-        ok(ctrl == ctrl)
-        ok(error.toString() == "some error")
+    handler = (ctrl, error)=>
+        @ok(ctrl == ctrl)
+        @ok(error.toString() == "some error")
     @expect(2)
     ctrl([
         (ctrl)=>
@@ -126,22 +125,12 @@ test "ParallelErrorHandling", ()->
             @ok(false, "this code should have never been reached")
             ctrl.next()
     ], {errorHandler:handler}, @done)
-
-test "BubbleErrorHandling", ()->
-    @expect(1)
-    exThrown = false
-    try
-        ctrl([(ctrl, err)->ctrl.raise("some error")])
-    catch ex
-        exThrown = true
-    @ok(exThrown)
-    @done()
     
 test "DontCatchExceptions", ()->
     @expect(1)
     exThrown = false
     try
-        ctrl([(ctrl)->math.kj], {catchExceptions:false}, {}, ()->)
+        ctrl([(ctrl)->math.kj])
     catch ex
         exThrown = true
     @ok(exThrown)
@@ -152,6 +141,7 @@ test "NoCallback", ()->
     ctrl([
         (ctrl)=>
             @ok(true)
+            ctrl.next()
     ])
     @done()
 
