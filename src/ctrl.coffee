@@ -8,7 +8,7 @@ modules = {
         ctrl.next=()->
             currentStep++
             args = [ctrl].concat(copyArray(arguments)) #create args to pass to next function
-            if currentStep >= ctrl.steps.length then ctrl.callback(args)
+            if currentStep >= ctrl.steps.length then ctrl.callback.apply(null, args)
             else ctrl.steps[currentStep].apply(null, args)
         next()
     spawn:(ctrl, next)->

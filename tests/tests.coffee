@@ -45,6 +45,7 @@ exports.RunAll = (throwException)->
     return
 
 # ctrl specific code
+isArray=(o) -> o? && Array.isArray o
     
 callMeBack=(func, args...)->
     func.apply(null, args)
@@ -61,15 +62,17 @@ test "Basic Next Test", ()->
     runner.run(steps, {}, @done)
 
 test "CallbackParameters", ()->
-    @expect(2)
+    @expect(3)
     ctrl([
-        (ctrl)=>
-            callMeBack(ctrl.next, 1, 2)
-        (ctrl, arg1, arg2)=>
+        (step)=>
+            callMeBack(step.next, 1, 2)
+        (step, arg1, arg2)=>
             @equal(arg1, 1)
             @equal(arg2, 2)
-            callMeBack(ctrl.next)
-    ], {}, @done)
+            callMeBack(step.next)
+    ], {}, (step)=>
+        @ok(typeof step == "object" && !isArray(step), "step was not right type when passed to callback")
+        @done())
 
 test "ParallelCode", ()->
     ctrl([
@@ -82,17 +85,16 @@ test "ParallelCode", ()->
 
 test "ParallelCodeReturns", ()->
     @expect(3)
-    deepEqual = @deepEqual
     ctrl([
-        (ctrl)->
+        (ctrl)=>
             callMeBack(ctrl.spawn())
             callMeBack(ctrl.spawn(), 1)
             callMeBack(ctrl.spawn(), 1, 2)
             ctrl.next()
-        (ctrl, ret1, ret2, ret3)->
-            deepEqual(null, ret1)
-            deepEqual(1, ret2)
-            deepEqual([1,2], ret3)
+        (ctrl, ret1, ret2, ret3)=>
+            @deepEqual(null, ret1)
+            @deepEqual(1, ret2)
+            @deepEqual([1,2], ret3)
             ctrl.next()
     ], {}, @done)
 
@@ -111,10 +113,9 @@ test "BasicErrorHandling", ()->
 
 test "ParallelErrorHandling", ()->
     @expect(2)
-    ok = @ok
-    handler = (ctrl, error)->
-        ok(ctrl == ctrl)
-        ok(error.toString() == "some error")
+    handler = (ctrl, error)=>
+        @ok(ctrl == ctrl)
+        @ok(error.toString() == "some error")
     ctrl([
         (ctrl)=>
             callMeBack(ctrl.spawn())

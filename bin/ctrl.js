@@ -20,7 +20,7 @@
         currentStep++;
         args = [ctrl].concat(copyArray(arguments));
         if (currentStep >= ctrl.steps.length) {
-          return ctrl.callback(args);
+          return ctrl.callback.apply(null, args);
         } else {
           return ctrl.steps[currentStep].apply(null, args);
         }
