@@ -15,7 +15,7 @@ class Test
         if arg1 != arg2 then throw "NotEqual: '#{str(arg1)}' does not equal '#{str(arg2)}'\n   #{message}"
     deepEqual:(arg1, arg2, message="")=>
         @num--
-        if not require('deep-equal')(arg1, arg2) then throw "NotEqual: '#{str(arg1)}' does not equal '#{str(arg2)}'\n   #{message}"
+        if not require('underscore').isEqual(arg1, arg2) then throw "NotEqual: '#{str(arg1)}' does not equal '#{str(arg2)}'\n   #{message}"
     ok:(bool,message="")=>
         @num--
         if not bool then throw "NotOk: false was passed to ok\n   #{message}"
@@ -27,7 +27,7 @@ class Test
         
 test=(name, func)->
     t = new Test(name, func)
-    exports[name]=()->t.run()
+    exports[name]=()->t.run.call(t)
 
 exports.RunAll = (throwException)->
     for name of exports
@@ -77,6 +77,22 @@ test "ParallelCode", ()->
             callMeBack(ctrl.spawn())
             callMeBack(ctrl.spawn())
             callMeBack(ctrl.spawn())
+            ctrl.next()
+    ], {}, @done)
+
+test "ParallelCodeReturns", ()->
+    @expect(3)
+    deepEqual = @deepEqual
+    ctrl([
+        (ctrl)->
+            callMeBack(ctrl.spawn())
+            callMeBack(ctrl.spawn(), 1)
+            callMeBack(ctrl.spawn(), 1, 2)
+            ctrl.next()
+        (ctrl, ret1, ret2, ret3)->
+            deepEqual(null, ret1)
+            deepEqual(1, ret2)
+            deepEqual([1,2], ret3)
             ctrl.next()
     ], {}, @done)
 

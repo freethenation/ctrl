@@ -15,18 +15,23 @@ modules = {
         state = null
         class SpawnState
             constructor:(ctrl, @callback)->
-                @threadCount = 0
-                @returnedThreads = 0
-                @returnValues = {0:ctrl}
+                @threadCount = -1
+                @returnedThreads = -1
+                @returnValues = {}
             spawn:()=>
                 @threadCount++
+                threadId = @threadCount
                 return ()=> #notice => instead of ->
-                    if @returnValues[@threadCount]? then throw "A spawn's callback can not be called multiple times!"
-                    @returnValues[@threadCount]=copyArray(arguments)
+                    if @returnValues[threadId]? then throw "A spawn's callback can not be called multiple times!"
+                    @returnValues[threadId] = (switch arguments.length
+                        when 0 then null
+                        when 1 then arguments[0]
+                        else copyArray(arguments)
+                    )
                     @returnedThreads++
                     @checkIfAllReturned()
             checkIfAllReturned:()->
-                if @returnValues.length and @returnehdThreads == @threadCount #if we are done spawning and all threads have been returned
+                if @returnValues.length and @returnedThreads == @threadCount #if we are done spawning and all threads have been returned
                     @callback.apply(null, copyArray(@returnValues)) #call the next step passing in all the return values
                     state = null #we are now in a new step... reset back to spawn never being called
             doneSpawning:()->

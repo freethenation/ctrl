@@ -36,28 +36,37 @@
           this.callback = callback;
           this.spawn = __bind(this.spawn, this);
 
-          this.threadCount = 0;
-          this.returnedThreads = 0;
-          this.returnValues = {
-            0: ctrl
-          };
+          this.threadCount = -1;
+          this.returnedThreads = -1;
+          this.returnValues = {};
         }
 
         SpawnState.prototype.spawn = function() {
-          var _this = this;
+          var threadId,
+            _this = this;
           this.threadCount++;
+          threadId = this.threadCount;
           return function() {
-            if (_this.returnValues[_this.threadCount] != null) {
+            if (_this.returnValues[threadId] != null) {
               throw "A spawn's callback can not be called multiple times!";
             }
-            _this.returnValues[_this.threadCount] = copyArray(arguments);
+            _this.returnValues[threadId] = ((function() {
+              switch (arguments.length) {
+                case 0:
+                  return null;
+                case 1:
+                  return arguments[0];
+                default:
+                  return copyArray(arguments);
+              }
+            }).apply(_this, arguments));
             _this.returnedThreads++;
             return _this.checkIfAllReturned();
           };
         };
 
         SpawnState.prototype.checkIfAllReturned = function() {
-          if (this.returnValues.length && this.returnehdThreads === this.threadCount) {
+          if (this.returnValues.length && this.returnedThreads === this.threadCount) {
             this.callback.apply(null, copyArray(this.returnValues));
             return state = null;
           }
