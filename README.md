@@ -165,7 +165,7 @@ You can play with this example at [JSBin](http://jsbin.com/erapun/16/edit).
 
 If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. I think an example will clarify things. 
 
-``javascript
+```javascript
 //The logger builder logs all parameters passed to step.next
 var loggingBuilder = function(step, next){
   var oldNext = step.next;
@@ -203,6 +203,6 @@ customRunner.run([
 //[1, 2]
 
 //Notice next was called 3 time. Next is called initially to start running the steps
-```javascript
+```
 
 You can play with this example at [JSBin](http://jsbin.com/erapun/37/edit).
