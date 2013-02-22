@@ -2,19 +2,19 @@ copyArray=(array)->Array.prototype.slice.call(array)
 isArray=(o) -> o? && Array.isArray o
 
 builders = {
-    next:(ctrl, next)->
-        ctrl.steps = copyArray(ctrl.steps) #stop from being modified mid execution
+    next:(step, next)->
+        step.steps = copyArray(step.steps) #stop from being modified mid execution
         currentStep = -1
-        ctrl.next=()->
+        step.next=()->
             currentStep++
-            args = [ctrl].concat(copyArray(arguments)) #create args to pass to next function
-            if currentStep >= ctrl.steps.length then ctrl.callback.apply(null, args)
-            else ctrl.steps[currentStep].apply(null, args)
+            args = [step].concat(copyArray(arguments)) #create args to pass to next function
+            if currentStep >= step.steps.length then step.callback.apply(null, args)
+            else step.steps[currentStep].apply(null, args)
         next()
-    spawn:(ctrl, next)->
+    spawn:(step, next)->
         state = null
         class SpawnState
-            constructor:(ctrl, @callback)->
+            constructor:(step, @callback)->
                 @threadCount = -1
                 @returnedThreads = -1
                 @returnValues = {}
@@ -36,28 +36,28 @@ builders = {
                     state = null #we are now in a new step... reset back to spawn never being called
             doneSpawning:()->
                 #spawning is done so we now know the length of the return values
-                @returnValues.length = @threadCount + 1 #+1 because the first parm is the ctrl object
+                @returnValues.length = @threadCount + 1 #+1 because the first parm is the step object
                 @checkIfAllReturned()
-        oldNext = ctrl.next
-        ctrl.spawn=()->
-            if !state then state = new SpawnState(ctrl, oldNext)
+        oldNext = step.next
+        step.spawn=()->
+            if !state then state = new SpawnState(step, oldNext)
             return state.spawn()
-        ctrl.next=()->
+        step.next=()->
             if state == null then oldNext.apply(null, arguments) #spawn was never called do nothing special
             else state.doneSpawning() #spawn was called
         next()
-    errorHandler:(ctrl, next)->
-        if !ctrl.options.errorHandler then next(); return #there is no error handler registered so skip this module
-        oldNext = ctrl.next
-        ctrl.next=()->
+    errorHandler:(step, next)->
+        if !step.options.errorHandler then next(); return #there is no error handler registered so skip this module
+        oldNext = step.next
+        step.next=()->
             try
                 oldNext.apply(null,arguments)
             catch error
-                ctrl.options.errorHandler(ctrl, error)
+                step.options.errorHandler(step, error)
         next()
-    data:(ctrl, next)->
-        if ctrl.options.data? then ctrl.data = ctrl.options.data
-        else ctrl.data = {}
+    data:(step, next)->
+        if step.options.data? then step.data = step.options.data
+        else step.data = {}
         next()
 }
 
@@ -66,14 +66,14 @@ class CtrlRunner
         if !isArray(@builders)
             @builders = copyArray(arguments)
     run:(steps, options={}, callback=()->)=>
-        ctrl = {steps:steps, options:options, callback:callback}
+        step = {steps:steps, options:options, callback:callback}
         builders = copyArray(@builders) #stop from being modified mid construction
         currentModule = -1
         nextModule = ()->
             currentModule++
             if currentModule >= builders.length
-                ctrl.next() #run the steps!
-            else builders[currentModule](ctrl, nextModule)
+                step.next() #run the steps!
+            else builders[currentModule](step, nextModule)
         nextModule()
 
 #export everything so it can be seen outside of this module

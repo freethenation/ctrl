@@ -11,28 +11,28 @@
   };
 
   builders = {
-    next: function(ctrl, next) {
+    next: function(step, next) {
       var currentStep;
-      ctrl.steps = copyArray(ctrl.steps);
+      step.steps = copyArray(step.steps);
       currentStep = -1;
-      ctrl.next = function() {
+      step.next = function() {
         var args;
         currentStep++;
-        args = [ctrl].concat(copyArray(arguments));
-        if (currentStep >= ctrl.steps.length) {
-          return ctrl.callback.apply(null, args);
+        args = [step].concat(copyArray(arguments));
+        if (currentStep >= step.steps.length) {
+          return step.callback.apply(null, args);
         } else {
-          return ctrl.steps[currentStep].apply(null, args);
+          return step.steps[currentStep].apply(null, args);
         }
       };
       return next();
     },
-    spawn: function(ctrl, next) {
+    spawn: function(step, next) {
       var SpawnState, oldNext, state;
       state = null;
       SpawnState = (function() {
 
-        function SpawnState(ctrl, callback) {
+        function SpawnState(step, callback) {
           this.callback = callback;
           this.spawn = __bind(this.spawn, this);
 
@@ -80,14 +80,14 @@
         return SpawnState;
 
       })();
-      oldNext = ctrl.next;
-      ctrl.spawn = function() {
+      oldNext = step.next;
+      step.spawn = function() {
         if (!state) {
-          state = new SpawnState(ctrl, oldNext);
+          state = new SpawnState(step, oldNext);
         }
         return state.spawn();
       };
-      ctrl.next = function() {
+      step.next = function() {
         if (state === null) {
           return oldNext.apply(null, arguments);
         } else {
@@ -96,27 +96,27 @@
       };
       return next();
     },
-    errorHandler: function(ctrl, next) {
+    errorHandler: function(step, next) {
       var oldNext;
-      if (!ctrl.options.errorHandler) {
+      if (!step.options.errorHandler) {
         next();
         return;
       }
-      oldNext = ctrl.next;
-      ctrl.next = function() {
+      oldNext = step.next;
+      step.next = function() {
         try {
           return oldNext.apply(null, arguments);
         } catch (error) {
-          return ctrl.options.errorHandler(ctrl, error);
+          return step.options.errorHandler(step, error);
         }
       };
       return next();
     },
-    data: function(ctrl, next) {
-      if (ctrl.options.data != null) {
-        ctrl.data = ctrl.options.data;
+    data: function(step, next) {
+      if (step.options.data != null) {
+        step.data = step.options.data;
       } else {
-        ctrl.data = {};
+        step.data = {};
       }
       return next();
     }
@@ -134,14 +134,14 @@
     }
 
     CtrlRunner.prototype.run = function(steps, options, callback) {
-      var ctrl, currentModule, nextModule;
+      var currentModule, nextModule, step;
       if (options == null) {
         options = {};
       }
       if (callback == null) {
         callback = function() {};
       }
-      ctrl = {
+      step = {
         steps: steps,
         options: options,
         callback: callback
@@ -151,9 +151,9 @@
       nextModule = function() {
         currentModule++;
         if (currentModule >= builders.length) {
-          return ctrl.next();
+          return step.next();
         } else {
-          return builders[currentModule](ctrl, nextModule);
+          return builders[currentModule](step, nextModule);
         }
       };
       return nextModule();

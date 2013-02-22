@@ -160,3 +160,49 @@ ctrl(steps, {data:{shared:'inital string'}}, function (step) {
 ```
 
 You can play with this example at [JSBin](http://jsbin.com/erapun/16/edit).
+
+# Extending
+
+If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. I think an example will clarify things. 
+
+``javascript
+//The logger builder logs all parameters passed to step.next
+var loggingBuilder = function(step, next){
+  var oldNext = step.next;
+  step.next = function(){
+    //print the arguments passed to step.next
+    console.log("Next was called with the parameters:");
+    console.log(Array.prototype.slice.call(arguments));
+    oldNext.apply(null, arguments); //call the original step
+  };
+  next(); //dont forget to call next to signal that your custom builder is done
+};
+
+//create a new CtrlRunner. When you call `Ctrl()` you are using 
+//the default runner by createing a new runner we can customize 
+//what builders are used to construct the `step` parameter.
+var customRunner = new ctrl.CtrlRunner(ctrl.builders.next, ctrl.builders.spawn,
+  loggingBuilder, ctrl.builders.data, ctrl.builders.errorHandler);
+
+//we are now going to run the new CtrlRunner that has our custom builder
+customRunner.run([
+  function (step) {
+    step.next("parm1", "parm2");
+  },
+  function (step) {
+    step.next(1, 2);
+  }
+], {}, function(step){console.log('we are done!');});
+
+//The above code will print the following to console:
+//"Next was called with the parameters:"
+//[]
+//"Next was called with the parameters:"
+//["parm1", "parm2"]
+//"Next was called with the parameters:"
+//[1, 2]
+
+//Notice next was called 3 time. Next is called initially to start running the steps
+```javascript
+
+You can play with this example at [JSBin](http://jsbin.com/erapun/37/edit).
