@@ -1,7 +1,7 @@
 copyArray=(array)->Array.prototype.slice.call(array)
 isArray=(o) -> o? && Array.isArray o
 
-modules = {
+builders = {
     next:(ctrl, next)->
         ctrl.steps = copyArray(ctrl.steps) #stop from being modified mid execution
         currentStep = -1
@@ -62,24 +62,24 @@ modules = {
 }
 
 class CtrlRunner
-    constructor:(@modules)->
-        if !isArray(@modules)
-            @modules = copyArray(arguments)
+    constructor:(@builders)->
+        if !isArray(@builders)
+            @builders = copyArray(arguments)
     run:(steps, options={}, callback=()->)=>
         ctrl = {steps:steps, options:options, callback:callback}
-        modules = copyArray(@modules) #stop from being modified mid construction
+        builders = copyArray(@builders) #stop from being modified mid construction
         currentModule = -1
         nextModule = ()->
             currentModule++
-            if currentModule >= modules.length
+            if currentModule >= builders.length
                 ctrl.next() #run the steps!
-            else modules[currentModule](ctrl, nextModule)
+            else builders[currentModule](ctrl, nextModule)
         nextModule()
 
 #export everything so it can be seen outside of this module
-defaultCtrlRunner = new CtrlRunner(modules.next, modules.spawn, modules.data, modules.errorHandler)
+defaultCtrlRunner = new CtrlRunner(builders.next, builders.spawn, builders.data, builders.errorHandler)
 extern = defaultCtrlRunner.run
-extern.modules = modules
+extern.builders = builders
 extern.defaultCtrlRunner = defaultCtrlRunner
 extern.CtrlRunner = CtrlRunner
 if typeof module == "undefined" then window.ctrl = extern else module.exports = extern

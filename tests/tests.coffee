@@ -53,7 +53,7 @@ callMeBack=(func, args...)->
 ctrl=require("../src/ctrl.coffee")
 
 test "Basic Next Test", ()->
-    runner = new ctrl.CtrlRunner(ctrl.modules.next)
+    runner = new ctrl.CtrlRunner(ctrl.builders.next)
     steps = []
     steps.push (ctrl)=>
         callMeBack(ctrl.next, 1, 2, 3)

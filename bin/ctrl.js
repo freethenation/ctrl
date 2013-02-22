@@ -1,5 +1,5 @@
 (function() {
-  var CtrlRunner, copyArray, defaultCtrlRunner, extern, isArray, modules,
+  var CtrlRunner, builders, copyArray, defaultCtrlRunner, extern, isArray,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   copyArray = function(array) {
@@ -10,7 +10,7 @@
     return (o != null) && Array.isArray(o);
   };
 
-  modules = {
+  builders = {
     next: function(ctrl, next) {
       var currentStep;
       ctrl.steps = copyArray(ctrl.steps);
@@ -124,12 +124,12 @@
 
   CtrlRunner = (function() {
 
-    function CtrlRunner(modules) {
-      this.modules = modules;
+    function CtrlRunner(builders) {
+      this.builders = builders;
       this.run = __bind(this.run, this);
 
-      if (!isArray(this.modules)) {
-        this.modules = copyArray(arguments);
+      if (!isArray(this.builders)) {
+        this.builders = copyArray(arguments);
       }
     }
 
@@ -146,14 +146,14 @@
         options: options,
         callback: callback
       };
-      modules = copyArray(this.modules);
+      builders = copyArray(this.builders);
       currentModule = -1;
       nextModule = function() {
         currentModule++;
-        if (currentModule >= modules.length) {
+        if (currentModule >= builders.length) {
           return ctrl.next();
         } else {
-          return modules[currentModule](ctrl, nextModule);
+          return builders[currentModule](ctrl, nextModule);
         }
       };
       return nextModule();
@@ -163,11 +163,11 @@
 
   })();
 
-  defaultCtrlRunner = new CtrlRunner(modules.next, modules.spawn, modules.data, modules.errorHandler);
+  defaultCtrlRunner = new CtrlRunner(builders.next, builders.spawn, builders.data, builders.errorHandler);
 
   extern = defaultCtrlRunner.run;
 
-  extern.modules = modules;
+  extern.builders = builders;
 
   extern.defaultCtrlRunner = defaultCtrlRunner;
 
