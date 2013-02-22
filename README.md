@@ -2,12 +2,12 @@
 # ctrl
 Simplifies asynchronous control flow in coffeescript making parallel code, synchronous code, and error handling simple
 # Why make another control flow library?
-___
+___________________________
 * One often desires to pass additional state to all the functions. Most of the control flow libraries I have seen do not allow for this. The issue can be worked around with a closure but closures are exactly what we are trying to avoid!
 * There are tons of control flow libraries out there but none of them seem to play well with coffeescript; they all override `this` which does not play well with coffeescript's bound function (`()=>`) syntax.
 
 # Features
-___
+___________________________
 * Makes it easy to write synchronous code without nested callbacks
 * Makes it easy to write parallel code without keeping track of all the pesky callbacks
 * Allows all your functions to easily share state without using a closure
@@ -16,10 +16,10 @@ ___
 * Is very extensible
 
 # How to install
-___
+______________________________
     $ npm install ctrl
 # Basic usage
-___
+_____________________________
 ctrl is really easy to use and consists of a single function, `ctrl` to which you pass an array of functions to call.
 The first parameter to each function is a reference to a `step` object which allows you to control the flow of the program. The signature for the `ctrl` function is 
 
@@ -60,7 +60,7 @@ ctrl(steps, {}, function (step) {
 You can play with this example at [JSBin](http://jsbin.com/erapun/2/edit).
 
 # Error handling
-___
+__________________________________
 Any errors that are thrown can be handled by an error handler
 
 ```javascript
@@ -93,7 +93,7 @@ ctrl(steps, {errorHandler:errorHandler}, function (step) {
 You can play with this example at [JSBin](http://jsbin.com/erapun/9/edit).
 
 # Parallel code
-___
+_____________________________________
 Using the spawn function on the step object you can run tasks in parallel and the next step will only be 
 run when all of the tasks are complete
 
@@ -131,7 +131,7 @@ ctrl(steps, {}, function (step) {
 You can play with this example at [JSBin](http://jsbin.com/erapun/15/edit).
 
 # Sharing state
-___
+________________________
 You can share state by using `step.data` which is passed to all the functions.
 
 ```javascript
@@ -162,8 +162,8 @@ ctrl(steps, {data:{shared:'inital string'}}, function (step) {
 You can play with this example at [JSBin](http://jsbin.com/erapun/16/edit).
 
 # Extending
-
-If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. I think an example will clarify things. 
+_______________________
+If you have ever written custom middleware for connect then you should be familiar with the mechanism by which ctrl can be extended. The step object is built up layer by layer by a series of builder functions. Each builder function extends the step object in some specific way. The signature for a builder function is `function(step, next)`. I think an example will clarify things. 
 
 ```javascript
 //The logger builder logs all parameters passed to step.next
