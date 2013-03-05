@@ -53,7 +53,7 @@ downloadReadmes=()->
                             console.log info.name
                             if error then console.log error
                             step.next()
-                    ],{},step.next)
+                    ],{errorHandler:(step,error)->console.log(error); step.next()},step.next)
         )
     ctrl(data, {errorHandler:(step,error)->console.log(error); step.next()}, ()->console.log('done!'))
 

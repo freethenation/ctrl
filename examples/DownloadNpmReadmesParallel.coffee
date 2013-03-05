@@ -53,7 +53,7 @@ downloadReadmes=()->
                             console.log info.name
                             if error then console.log error
                             step.next()
-                    ],{errorHandler:(step,error)->console.log(error)},step.next)
+                    ],{errorHandler:(step,error)->console.log(error); step.next()},step.next)
         )
     #In order to make this download in parallel we are going to add a simple builder
     #that modifies the behavior of the next function so that 25 things are always
