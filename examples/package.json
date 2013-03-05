@@ -1,0 +1,10 @@
+{
+    "name":"ctrl-examples",
+    "private": true,
+    "version":"0.0.1",
+    "dependencies": {
+        "underscore": "1.4.4",
+        "ctrl": ">= 0.0.1",
+        "request": "*"
+    }
+}
